@@ -1,94 +1,181 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace timalban_harrisonleitch_2020F18_A2
+namespace Huffman
 {
-    class Program HuffmanCode
+    public class Node : IComparable
     {
-      public static void Main()
-      {
-        int count =0;
-        int[] freq = new int[27];
-        string shirt = "aboot"; // Example string, eventually we need to allow the user to input Text
+        public char Character { get; set; }
+        public int Frequency { get; set; }
+        public Node Left { get; set; }
+        public Node Right { get; set; }
+        //
 
-        charCount(freq, shirt);
-
-        // Max array size we need is 53, 26 lower, 26 upper, 1 space.
-        // Read in user input, call AnalyzeText
-
-        for (int i = 0; i < 27; i++)
+        public Node(char character, int frequency, Node left, Node right)
         {
-            if (i >= 26)
-                Console.WriteLine("Space has a frequency of {0}", freq[i]);
+            this.Character = character;
+            this.Frequency = frequency;
+            this.Left = left;
+            this.Right = right;
+        }
+        // 5 marks 
+        public int CompareTo(Node n)
+        //public int CompareTo(Object obj)
+        {
+            //Node other = (Node)obj;
+            //return Frequency - other.Frequency;
+            return Frequency.CompareTo(n.Frequency);
+        }
+    }
+    class Huffman
+    {
+        private Node HT;   // Huffman tree to create codes and decode text 
+        private Dictionary<char, string> D; // Dictionary to encode text
+
+        public static void Main()
+        {
+            string test;
+
+            Console.Write("Enter the last name of the employee => ");
+            test = Console.ReadLine();
+
+        }
+        // Constructor 
+        public Huffman(string S)
+        {
+
+
+        }
+
+        // 15 marks // Return the frequency of each character in the given text (invoked by Huffman) 
+        private int[] AnalyzeText(string S)
+        {
+            int[] alpha = new int[53];
+            foreach (char c in S.ToLower())
+            {
+
+                if (((int)c <= 122) && ((int)c >= 97))
+                    alpha[(int)c - 97]++;
+
+                else if (((int)c <= 90) && ((int)c >= 65))
+                    alpha[(int)c - 65]++;
+
+                else if ((int)c == 32)
+                    alpha[27]++;
+
+            }
+            return alpha;
+        }
+
+        // 20 marks  // Build a Huffman tree based on the character frequencies greater than 0 (invoked by Huffman) 
+        private void Build(int[] F)
+        {
+            Node left;
+            Node right;
+
+            
+            char[] a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ".ToCharArray();
+
+
+            PriorityQueue<Node> PQ = new PriorityQueue<Node>(53);
+
+            for (int i = 0; i < a.Length; i++) //check for an issue
+            {
+                PQ.Add(new Node(a[i], F[i], null, null)); 
+            }
+
+            if (PQ.Size() == 1)
+           
+                HT = PQ.Front();
+            
             else
-                Console.WriteLine("{1} has a frequency of {0}", freq[i], (char)(i + 97)); //
-        }
-        Console.ReadLine();
-      }
+            {
+                while(PQ.Size() > 1)
+                {
+                    left = PQ.Front();
+                    PQ.Remove();
+                    right = PQ.Front();
+                    PQ.Remove();
+                    PQ.Add(new Node('2',left.Frequency + right.Frequency, left, right));
+                    HT = PQ.Front();
+                }
+            }
 
-      class Node : IComparable
-      {
-        public char Character {get; set;}
-        public int Frequency {get; set;}
-        public Node Left {get; set;}
-        public Node Right {get; set;}
-
-        public Node (char character, int frequency, Node left, Node right)
-        {
-          //...
         }
 
-        public int CompareTo (Object obj)
-        {
-          //...
-        }
-      }
-
-      class Huffman
-      {
-        private Node HT; // Huffman tree to create codes and decode Text
-        private Dictionary <char,string> D; // Dictionary to encode Text
-        // From notes: Dictionary <T key, T value>, rememember that the C# dictionary is a hash table
-
-        // Constructor
-        public Huffman (string S)
-        {
-          // ...
-          // NEEDS TO CALL: AnalyzeText, Build, and CreateCodes
-        }
-
-        // Return the frequency of each character in the given text (invoked by Huffman)
-        private int[] AnalyzeText (string S)
-        {
-          //...
-        }
-
-        // Build a Huffman tree based on the character frequencies greater than 0 (invoked by Huffman)
-        private void Build (int[] F)
-        {
-          PriorityQueue<Node> PQ;
-          //...
-        }
-
-        //Create the code of 0s and 1s for each character by traversing the Huffman tree (invoked by Huffman)
+        // 20 marks 
+        // Create the code of 0s and 1s for each character by traversing the Huffman tree (invoked by Huffman) 
         private void CreateCodes()
         {
-          //...
+            String c = "";
+            codes(HT,c);   
+   
         }
-
-        //Encode the given text and return a string of 0s and 1s
-        public string Encode (string S)
+        private void codes(Node cN, string code)
         {
-          //...
-        }
+            while (cN.Left != null)
+            {
+                codes(cN.Left, code += "0");
+                codes(cN.Right, code += "1");
 
-        // Decode the given string of 0s and 1s and return the original Text
-        public string Decode (string S)
+            }
+            if (cN.Left == null)
+                D.Add(cN.Character, code);
+        }
+//-------------------------------------------------------------------
+                //while (HC1.Left != null && HC1.Right != null)
+                //{
+                    //HC2 = HC1.Left;
+                    //codes += "0";
+
+                    //if (HC2.Character != '2')
+                    //{
+                    //    D.Add(HC2.Character, codes);
+                    //    HC2 = HC1.Right;
+                       
+
+                    //}
+                    //codes = "";
+//-------------------------------------------------------------------                
+ 
+        // 10 marks  // Encode the given text and return a string of 0s and 1s 
+        public string Encode(string S)
         {
-          //...
-        }
+            String encodedMessage = "";
+            
 
-      }
+            foreach (char c in S)
+            {
+                encodedMessage += D[c];              
+            }
+
+            return encodedMessage;
+        }
+        // 10 marks
+        // Decode the given string of 0s and 1s and return the original text 
+        public string Decode(string S)
+        {
+            Node current = HT;
+            string decodedMessage = "";
+
+            foreach (char c in S)
+            {
+                while(current.Left != null)
+                {
+                    if ((int)c == 0)
+                        current = current.Left;
+                    else if ((int)c == 1)
+                        current = current.Right;
+                }
+                if (current.Left == null)
+                {
+                    decodedMessage += current.Character;
+                }
+            }
+            return decodedMessage;
+        }
+    }
 }

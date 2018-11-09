@@ -1,8 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Huffman
 {
@@ -22,7 +22,7 @@ namespace Huffman
             this.Right = right;
         }
         // 5 marks 
-        //public int CompareTo(Node n)
+       // public int CompareTo(Node n)
         public int CompareTo(Object obj)
         {
             Node other = (Node)obj;
@@ -32,23 +32,15 @@ namespace Huffman
     }
     class Huffman
     {
-        private Node HT;   // Huffman tree to create codes and decode text 
-        private Dictionary<char, string> D = new Dictionary<char, string>(); // Dictionary to encode text
-        string c = "";
+        private Node HT;   // Huffman tree to create codes and decode text 
+        private Dictionary<char, string> D = new Dictionary<char,string>(); // Dictionary to encode text
 
-        public static void Main()
-        {
-            string test;
-
-            Console.Write("Enter the last name of the employee => ");
-            test = Console.ReadLine();
-
-        }
+        
         // Constructor 
         public Huffman(string S)
         {
             Build(AnalyzeText(S));
-            CreateCodes(HT, c);
+            CreateCodes();
         }
 
         // 15 marks // Return the frequency of each character in the given text (invoked by Huffman) 
@@ -62,94 +54,93 @@ namespace Huffman
                     alpha[(int)c - 97]++;
 
                 else if (((int)c <= 90) && ((int)c >= 65))
-                    alpha[(int)c - 65]++;
+                    alpha[(int)c - 39]++;
 
                 else if ((int)c == 32)
-                    alpha[27]++;
-
+                    alpha[52]++;
             }
             return alpha;
         }
 
-        // 20 marks  // Build a Huffman tree based on the character frequencies greater than 0 (invoked by Huffman) 
+        // 20 marks  // Build a Huffman tree based on the character frequencies greater than 0 (invoked by Huffman) 
         private void Build(int[] F)
         {
             Node left;
             Node right;
-
-
+      
             char[] a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ".ToCharArray();
 
-
-            PriorityQueue<Node> PQ = new PriorityQueue<Node>(53);
+            PriorityQueue<Node> PQ = new PriorityQueue<Node>(a.Length + 1);
 
             for (int i = 0; i < a.Length; i++) //check for an issue
             {
-                PQ.Add(new Node(a[i], F[i], null, null));
+              if(F[i] >= 1)
+                PQ.Add(new Node(a[i], F[i], null, null)); 
+
             }
 
             if (PQ.Size() == 1)
-
-                HT = PQ.Front();
-
+          
+                HT = PQ.Front();  
+         
             else
             {
-                while (PQ.Size() > 1)
+                while(PQ.Size() > 1)
                 {
+                    
                     left = PQ.Front();
                     PQ.Remove();
                     right = PQ.Front();
                     PQ.Remove();
-                    PQ.Add(new Node('2', left.Frequency + right.Frequency, left, right));
-                    HT = PQ.Front();
+                    
+                        PQ.Add(new Node(']', left.Frequency + right.Frequency, left, right));
+                        HT = PQ.Front();
+                    
                 }
             }
 
         }
-
         // 20 marks 
         // Create the code of 0s and 1s for each character by traversing the Huffman tree (invoked by Huffman) 
-        private void CreateCodes(Node HT, string code)
+        private void CreateCodes()
         {
-            codes(HT, code);
-
+            string c = " ";
+            codes(HT,c);   
         }
-        private void codes(Node cN, string code)
+        private void codes(Node cN, string codeWord)
         {
-            while (cN.Left != null)
+            if (cN.Left != null )
             {
-                codes(cN.Left, code += "0");
-                codes(cN.Right, code += "1");
-
+                codes(cN.Left, codeWord += "0");
+                codes(cN.Right, codeWord += "1");
             }
-            if (cN.Left == null)
-                D.Add(cN.Character, code);
+            else 
+                D.Add(cN.Character,codeWord);
         }
-        //-------------------------------------------------------------------
-        //while (HC1.Left != null && HC1.Right != null)
-        //{
-        //HC2 = HC1.Left;
-        //codes += "0";
+//-------------------------------------------------------------------
+                //while (HC1.Left != null && HC1.Right != null)
+                //{
+                    //HC2 = HC1.Left;
+                    //codes += "0";
 
-        //if (HC2.Character != '2')
-        //{
-        //    D.Add(HC2.Character, codes);
-        //    HC2 = HC1.Right;
+                    //if (HC2.Character != '2')
+                    //{
+                    //    D.Add(HC2.Character, codes);
+                    //    HC2 = HC1.Right;
+                       
 
-
-        //}
-        //codes = "";
-        //-------------------------------------------------------------------                
-
-        // 10 marks  // Encode the given text and return a string of 0s and 1s 
+                    //}
+                    //codes = "";
+//-------------------------------------------------------------------                
+ 
+        // 10 marks  // Encode the given text and return a string of 0s and 1s 
         public string Encode(string S)
         {
-            String encodedMessage = "";
-
+            String encodedMessage = "";        
 
             foreach (char c in S)
-            {
-                encodedMessage += D[c];
+            {    
+                encodedMessage += D[c];              
             }
 
             return encodedMessage;
@@ -158,25 +149,33 @@ namespace Huffman
         // Decode the given string of 0s and 1s and return the original text 
         public string Decode(string S)
         {
-            Node current = HT;
+           
             string decodedMessage = "";
 
-            foreach (char c in S)
+            S = S.Replace(" ", "");
+
+            foreach (Char c in S)
             {
-                while (current.Left != null)
+                Node current = HT;
+                while(current.Left != null)
                 {
-                    if ((int)c == 0)
+                    if ((int)c == 48)
+
                         current = current.Left;
-                    else if ((int)c == 1)
-                        current = current.Right;
-                }
-                if (current.Left == null)
-                {
-                    decodedMessage += current.Character;
-                }
+
+                    else if ((int)c == 49)
+
+                        current = current.Right; 
+                        }
+                               
+                if(current.Left == null)
+                decodedMessage += current.Character;
+                        
             }
             return decodedMessage;
         }
+    }
+}
 
         public interface IContainer<T>
         {
